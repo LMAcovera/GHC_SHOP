@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us - Glamorosa Haute Couture{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/contact.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="contact-container">
+    <div class="container py-5">
+        <h1 class="text-center mb-5">Contact Us</h1>
+        
+        <div class="row">
+            <!-- Contact Information -->
+            <div class="col-md-6 mb-4">
+                <div class="contact-info-card">
+                    <h3>Get in Touch</h3>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h5>Location</h5>
+                            <p>7CJ7+VJ4, A. Regodor St, Poblacion 3,<br>Santa Cruz, Laguna</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <div>
+                            <h5>Phone</h5>
+                            <p><a href="tel:+639306859478">0930 685 9478</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <i class="fab fa-facebook"></i>
+                        <div>
+                            <h5>Facebook</h5>
+                            <p><a href="https://www.facebook.com/richard.roque.9231" target="_blank">Richard Roque</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <i class="far fa-clock"></i>
+                        <div>
+                            <h5>Business Hours</h5>
+                            <p>Monday - Saturday: 9:00 AM - 6:00 PM<br>
+                               Sunday: Closed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Google Maps -->
+            <div class="col-md-6">
+                <div class="map-container">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3867.5511772677387!2d121.41157697475766!3d14.282133785563674!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397e323fab5558f%3A0xff12ed8e64a2536f!2sGlamorosa%20Haute%20Couture!5e0!3m2!1sen!2sph!4v1707901718995!5m2!1sen!2sph"
+                        width="100%" 
+                        height="450" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

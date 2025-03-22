@@ -1,0 +1,358 @@
+.product-container {
+    min-height: calc(100vh - 76px);
+    background-color: #f8f9fa;
+    padding: 20px 0;
+}
+
+.product-images {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.main-image {
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.thumbnail-images {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.thumbnail:hover, .thumbnail.active {
+    border-color: #000;
+}
+
+.product-details {
+    background-color: #fff;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.product-title {
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1a1a1a;
+}
+
+.category {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+.prices {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+
+.prices .label {
+    font-weight: 600;
+    color: #4a4a4a;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.prices .amount {
+    font-size: 1.3rem;
+    color: #1a1a1a;
+    margin-left: 10px;
+    font-weight: 600;
+}
+
+.action-buttons {
+    margin-top: 30px;
+}
+
+.action-buttons .btn {
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.action-buttons .btn-dark {
+    background-color: #1a1a1a;
+    border: 2px solid #1a1a1a;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.action-buttons .btn-dark:hover {
+    background-color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.action-buttons .btn-outline-dark {
+    border: 2px solid #1a1a1a;
+    color: #1a1a1a;
+    background-color: transparent;
+}
+
+.action-buttons .btn-outline-dark:hover {
+    background-color: #1a1a1a;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.action-buttons .btn-outline-danger {
+    border: 2px solid #dc3545;
+    color: #dc3545;
+    background-color: transparent;
+    margin-top: 10px;
+}
+
+.action-buttons .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220,53,69,0.2);
+}
+
+.action-buttons i {
+    font-size: 1rem;
+}
+
+.form-select:focus {
+    border-color: #000;
+    box-shadow: none;
+}
+
+.size-boxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.size-box {
+    min-width: 50px;
+    height: 50px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    padding: 0 15px;
+}
+
+.size-box:hover {
+    border-color: #1a1a1a;
+    background-color: #f8f9fa;
+}
+
+.size-box.selected {
+    border-color: #1a1a1a;
+    background-color: #1a1a1a;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#addToWishlist {
+    transition: all 0.3s ease;
+}
+
+#addToWishlist.active {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+#addToWishlist.active:hover {
+    background-color: #bb2d3b;
+    border-color: #bb2d3b;
+}
+
+/* Reservation Modal Styles */
+#reserveRequestModal .modal-dialog {
+    max-width: 700px;
+}
+
+#reserveRequestModal .modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+#reserveRequestModal .modal-header {
+    background-color: #1a1a1a;
+    color: white;
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    padding: 1.5rem;
+}
+
+#reserveRequestModal .modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+#reserveRequestModal .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+#reserveRequestModal .modal-body {
+    padding: 2rem;
+}
+
+#reserveRequestModal .form-label {
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+}
+
+#reserveRequestModal .form-control {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+#reserveRequestModal .form-control:focus {
+    border-color: #1a1a1a;
+    box-shadow: none;
+}
+
+#reserveRequestModal .form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 0.2em;
+    cursor: pointer;
+}
+
+#reserveRequestModal .form-check-input:checked {
+    background-color: #1a1a1a;
+    border-color: #1a1a1a;
+}
+
+#reserveRequestModal .form-check-label {
+    padding-left: 0.5rem;
+    cursor: pointer;
+}
+
+#reserveRequestModal #reservationAmount {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+#reserveRequestModal .text-muted {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+#reserveRequestModal .modal-footer {
+    border-top: 1px solid #e0e0e0;
+    padding: 1.5rem;
+    border-radius: 0 0 12px 12px;
+}
+
+#reserveRequestModal .btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+#reserveRequestModal .btn-secondary {
+    background-color: #e0e0e0;
+    border: none;
+    color: #1a1a1a;
+}
+
+#reserveRequestModal .btn-secondary:hover {
+    background-color: #d0d0d0;
+}
+
+#reserveRequestModal .btn-primary {
+    background-color: #1a1a1a;
+    border: none;
+}
+
+#reserveRequestModal .btn-primary:hover {
+    background-color: #000;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* File input styling */
+#reserveRequestModal input[type="file"] {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
+#reserveRequestModal input[type="file"]::file-selector-button {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    background-color: #f0f0f0;
+    color: #1a1a1a;
+    margin-right: 1rem;
+    transition: all 0.3s ease;
+}
+
+#reserveRequestModal input[type="file"]::file-selector-button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Payment section styling */
+#reserveRequestModal .payment-section {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+#reserveRequestModal .payment-section h6 {
+    color: #1a1a1a;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    #reserveRequestModal .modal-body {
+        padding: 1.5rem;
+    }
+    
+    #reserveRequestModal .btn {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+} 

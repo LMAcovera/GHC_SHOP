@@ -1,0 +1,74 @@
+.wishlist-container {
+    min-height: 80vh;
+    background-color: #f8f9fa;
+}
+
+.wishlist-item {
+    transition: transform 0.2s;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.wishlist-item:hover {
+    transform: translateY(-5px);
+}
+
+.wishlist-item .card-img-top {
+    height: 300px;
+    object-fit: cover;
+}
+
+.wishlist-item .category {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.wishlist-item .prices {
+    margin-top: 1rem;
+}
+
+.wishlist-item .regular-price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+}
+
+.wishlist-item .rental-price {
+    color: #28a745;
+    font-size: 1rem;
+}
+
+.empty-wishlist {
+    padding: 3rem 1rem;
+}
+
+.empty-wishlist i {
+    font-size: 4rem;
+    color: #dc3545;
+    margin-bottom: 1rem;
+}
+
+.empty-wishlist h3 {
+    margin-bottom: 1rem;
+}
+
+.empty-wishlist p {
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+.card-footer {
+    background: none;
+    border-top: none;
+    padding: 1rem;
+}
+
+.btn-group .btn {
+    flex: 1;
+}
+
+.remove-wishlist:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}

@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders - Glamorosa Haute Couture{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/orders.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="orders-container">
+    <div class="container py-5">
+        <h1 class="page-title mb-4">My Orders</h1>
+        
+        <!-- Tabs -->
+        <ul class="nav nav-tabs" id="orderTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button">
+                    <i class="fas fa-shopping-bag me-2"></i>Orders
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="approvals-tab" data-bs-toggle="tab" data-bs-target="#approvals" type="button">
+                    <i class="fas fa-clock me-2"></i>Pending Approvals
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="rentals-tab" data-bs-toggle="tab" data-bs-target="#rentals" type="button">
+                    <i class="fas fa-key me-2"></i>My Rentals
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reservations-tab" data-bs-toggle="tab" data-bs-target="#reservations" type="button">
+                    <i class="fas fa-bookmark me-2"></i>My Reservations
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content mt-4" id="orderTabsContent">
+            <!-- Orders Tab -->
+            <div class="tab-pane fade show active" id="orders">
+                {% if orders %}
+                    {% for order in orders %}
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Order #{{ order.order_id }}</h5>
+                                <span class="badge bg-{{ order.order_status }}">{{ order.order_status|title }}</span>
+                            </div>
+                            <small class="text-muted">{{ order.created_at.strftime('%B %d, %Y') }}</small>
+                        </div>
+                        <div class="order-body">
+                            <div class="product-info">
+                                <img src="{{ url_for('static', filename=order.product_image) }}" alt="{{ order.product_name }}">
+                                <div class="details">
+                                    <h6>{{ order.product_name }}</h6>
+                                    <p>Size: {{ order.size }}</p>
+                                    <p class="price">₱{{ "%.2f"|format(order.total_amount) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-shopping-bag"></i>
+                        <p>No orders yet</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Approvals Tab -->
+            <div class="tab-pane fade" id="approvals">
+                {% if rental_requests or reservation_requests %}
+                    {% if rental_requests %}
+                        <h5 class="mb-3">Rental Requests</h5>
+                        {% for request in rental_requests %}
+                        <div class="order-card" onclick="viewRequestDetails({{ request.request_id }})">
+                            <div class="order-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Request #{{ request.request_id }}</h5>
+                                    <span class="badge bg-{{ request.status }}">{{ request.status|title }}</span>
+                                </div>
+                                <small class="text-muted">{{ request.created_at.strftime('%B %d, %Y') }}</small>
+                            </div>
+                            <div class="order-body">
+                                <div class="product-info">
+                                    <img src="{{ url_for('static', filename=request.product_image) }}" alt="{{ request.product_name }}">
+                                    <div class="details">
+                                        <h6>{{ request.product_name }}</h6>
+                                        <p>Size: {{ request.size }}</p>
+                                        <p>Rental Period: {{ request.rental_days }} days</p>
+                                        <p>{{ request.start_date.strftime('%B %d, %Y') }} - {{ request.end_date.strftime('%B %d, %Y') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if reservation_requests %}
+                        <h5 class="mb-3 mt-4">Reservation Requests</h5>
+                        {% for request in reservation_requests %}
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Request #{{ request.request_id }}</h5>
+                                    <span class="badge bg-{{ request.status }}">{{ request.status|title }}</span>
+                                </div>
+                                <small class="text-muted">{{ request.created_at.strftime('%B %d, %Y') }}</small>
+                            </div>
+                            <div class="order-body">
+                                <div class="product-info">
+                                    <img src="{{ url_for('static', filename=request.product_image) }}" alt="{{ request.product_name }}">
+                                    <div class="details">
+                                        <h6>{{ request.product_name }}</h6>
+                                        <p>Size: {{ request.size }}</p>
+                                        <p class="price">₱{{ "%.2f"|format(request.total_amount) }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-clock"></i>
+                        <p>No pending requests</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Rentals Tab -->
+            <div class="tab-pane fade" id="rentals">
+                {% if rentals %}
+                    {% for rental in rentals %}
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Rental #{{ rental.rental_id }}</h5>
+                                <span class="badge bg-{{ rental.status }}">{{ rental.status|title }}</span>
+                            </div>
+                            <small class="text-muted">{{ rental.created_at.strftime('%B %d, %Y') }}</small>
+                        </div>
+                        <div class="order-body">
+                            <div class="product-info">
+                                <img src="{{ url_for('static', filename=rental.product_image) }}" alt="{{ rental.product_name }}">
+                                <div class="details">
+                                    <h6>{{ rental.product_name }}</h6>
+                                    <p>Size: {{ rental.size }}</p>
+                                    <p>Rental Period: {{ rental.rental_days }} days</p>
+                                    <p>{{ rental.start_date.strftime('%B %d, %Y') }} - {{ rental.end_date.strftime('%B %d, %Y') }}</p>
+                                    <p class="price">₱{{ "%.2f"|format(rental.total_amount) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-key"></i>
+                        <p>No active rentals</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Reservations Tab -->
+            <div class="tab-pane fade" id="reservations">
+                {% if reservations %}
+                    {% for reservation in reservations %}
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Reservation #{{ reservation.reservation_id }}</h5>
+                                <span class="badge bg-{{ reservation.status }}">{{ reservation.status|title }}</span>
+                            </div>
+                            <small class="text-muted">{{ reservation.created_at.strftime('%B %d, %Y') }}</small>
+                        </div>
+                        <div class="order-body">
+                            <div class="product-info">
+                                <img src="{{ url_for('static', filename=reservation.product_image) }}" alt="{{ reservation.product_name }}">
+                                <div class="details">
+                                    <h6>{{ reservation.product_name }}</h6>
+                                    <p>Size: {{ reservation.size }}</p>
+                                    <p class="price">₱{{ "%.2f"|format(reservation.total_amount) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-bookmark"></i>
+                        <p>No active reservations</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Order Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/orders.js') }}"></script>
+{% endblock %} 

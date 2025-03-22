@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} - Glamorosa Haute Couture{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/product_details.css') }}">
+{% endblock %}
+
+{% block content %}
+<body data-user-logged-in="{{ 'true' if session.get('user_id') else 'false' }}">
+<div class="product-container">
+    <div class="container py-5">
+        <div class="row">
+            <!-- Product Images -->
+            <div class="col-md-6">
+                <div class="product-images">
+                    <div class="main-image mb-3">
+                        <img src="{{ url_for('static', filename=images[0].image_path) }}" 
+                             alt="{{ product.name }}" 
+                             id="mainImage"
+                             class="img-fluid">
+                    </div>
+                    <div class="thumbnail-images">
+                        {% for image in images %}
+                        <img src="{{ url_for('static', filename=image.image_path) }}" 
+                             alt="{{ product.name }}"
+                             onclick="changeMainImage(this.src)"
+                             class="thumbnail {% if loop.first %}active{% endif %}">
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="col-md-6">
+                <div class="product-details">
+                    <h1 class="product-title">{{ product.name }}</h1>
+                    <p class="category">{{ product.category_name }}</p>
+                    
+                    <div class="prices mb-4">
+                        <div class="regular-price">
+                            <span class="label">Regular Price:</span>
+                            <span class="amount">₱{{ "%.2f"|format(product.regular_price) }}</span>
+                        </div>
+                        <div class="rental-price">
+                            <span class="label">Rental Fee:</span>
+                            <span class="amount">₱{{ "%.2f"|format(product.rental_fee_per_day) }}/day</span>
+                        </div>
+                    </div>
+
+                    <div class="product-info mb-4">
+                        <p><strong>Color:</strong> {{ product.color }}</p>
+                        <p><strong>Material:</strong> {{ product.material }}</p>
+                    </div>
+
+                    <div class="size-selection mb-4">
+                        <label class="form-label">Select Size:</label>
+                        <div class="size-boxes">
+                            {% for size in sizes %}
+                            <div class="size-box" data-size="{{ size.size }}">
+                                {{ size.size }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" id="selectedSize" value="">
+                    </div>
+
+                    <div class="description mb-4">
+                        <h5>Description</h5>
+                        <p>{{ product.description }}</p>
+                    </div>
+
+                    <div class="action-buttons">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <button class="btn btn-dark btn-lg w-100" id="rentNow">
+                                    <i class="fas fa-shopping-cart me-2"></i>Rent Now
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-outline-dark btn-lg w-100" id="buyNow">
+                                    <i class="fas fa-shopping-bag me-2"></i>Buy Now
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-danger btn-lg w-100 mb-3" id="addToWishlist">
+                            <i class="fas fa-heart me-2"></i>Add to Wishlist
+                        </button>
+                        <button class="btn btn-outline-dark btn-lg w-100" id="reserveNow">
+                            <i class="fas fa-calendar-check me-2"></i>Reserve Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this modal after your existing content -->
+<div class="modal fade" id="rentRequestModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rental Request Form</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="rentRequestForm" enctype="multipart/form-data">
+                    <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="full_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Number</label>
+                            <input type="tel" class="form-control" name="contact_number" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Complete Address</label>
+                        <textarea class="form-control" name="complete_address" rows="3" required></textarea>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Number of Days</label>
+                            <input type="number" class="form-control" name="rental_days" min="1" required
+                                   onchange="calculateTotal(this.value)">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Total Amount</label>
+                            <input type="text" class="form-control" id="totalAmount" readonly>
+                            <input type="hidden" name="total_amount" id="totalAmountHidden">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" value="GCASH" required>
+                            <label class="form-check-label">GCash (Delivery)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" value="CASH" required>
+                            <label class="form-check-label">Cash (Pickup)</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Valid ID</label>
+                        <input type="file" class="form-control" name="valid_id" accept="image/*" required>
+                        <small class="text-muted">Please upload a clear image of your valid ID</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitRentRequest">Submit Request</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this new modal after your existing modals -->
+<div class="modal fade" id="reserveRequestModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reservation Request Form</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reserveRequestForm" enctype="multipart/form-data">
+                    <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="full_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Number</label>
+                            <input type="tel" class="form-control" name="contact_number" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Complete Address</label>
+                        <textarea class="form-control" name="complete_address" rows="3" required></textarea>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Reservation Amount (50% of ₱{{ "%.2f"|format(product.regular_price) }})</label>
+                            <input type="text" class="form-control" id="reservationAmount" 
+                                   value="₱{{ "%.2f"|format(product.regular_price / 2) }}" readonly>
+                            <input type="hidden" name="total_amount" value="{{ product.regular_price / 2 }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Payment Method</label>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" value="GCASH" required>
+                            <label class="form-check-label">GCash</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">GCash Reference Number</label>
+                        <input type="text" class="form-control" name="gcash_reference" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Payment Proof</label>
+                        <input type="file" class="form-control" name="payment_proof" accept="image/*" required>
+                        <small class="text-muted">Please upload a screenshot of your payment</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Valid ID</label>
+                        <input type="file" class="form-control" name="valid_id" accept="image/*" required>
+                        <small class="text-muted">Please upload a clear image of your valid ID</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitReservation">Submit Reservation</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Pass product ID from template to JavaScript
+    const productId = {{ product.product_id }};
+</script>
+<script src="{{ url_for('static', filename='js/product_details.js') }}"></script>
+{% endblock %} 

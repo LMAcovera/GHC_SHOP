@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}My Appointments - Glamorosa{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/appointments.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">My Appointments</h2>
+    
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="appointmentTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button">
+                Pending Requests
+                {% if pending_count > 0 %}
+                <span class="badge bg-primary ms-2">{{ pending_count }}</span>
+                {% endif %}
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button">
+                Active Appointments
+                {% if active_count > 0 %}
+                <span class="badge bg-success ms-2">{{ active_count }}</span>
+                {% endif %}
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="appointmentTabsContent">
+        <!-- Pending Requests Tab -->
+        <div class="tab-pane fade show active" id="pending" role="tabpanel">
+            {% if pending_appointments %}
+                {% for appointment in pending_appointments %}
+                <div class="appointment-card">
+                    <div class="appointment-header">
+                        <h5>Appointment #{{ appointment.appointment_id }}</h5>
+                        <span class="status-badge {{ appointment.status }}">{{ appointment.status|title }}</span>
+                    </div>
+                    <div class="appointment-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="{{ url_for('static', filename=appointment.inspiration_image) }}" 
+                                     alt="Inspiration" class="inspiration-image">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="appointment-details">
+                                    <p><strong>Category:</strong> {{ appointment.category_name }}</p>
+                                    <p><strong>Description:</strong> {{ appointment.description }}</p>
+                                    <p><strong>Preferred Date:</strong> {{ appointment.preferred_date }}</p>
+                                    <p><strong>Preferred Time:</strong> {{ appointment.preferred_time }}</p>
+                                    <p><strong>Budget Range:</strong> ₱{{ "%.2f"|format(appointment.budget_range) }}</p>
+                                    {% if appointment.special_requirements %}
+                                    <p><strong>Special Requirements:</strong> {{ appointment.special_requirements }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times fa-3x mb-3 text-muted"></i>
+                    <p class="text-muted">No pending appointment requests</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Active Appointments Tab -->
+        <div class="tab-pane fade" id="approved" role="tabpanel">
+            {% if active_appointments %}
+                {% for appointment in active_appointments %}
+                <div class="appointment-card">
+                    <div class="appointment-header">
+                        <h5>Appointment #{{ appointment.appointment_id }}</h5>
+                        <span class="status-badge {{ appointment.status }}">{{ appointment.status|title }}</span>
+                    </div>
+                    <div class="appointment-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="{{ url_for('static', filename=appointment.inspiration_image) }}" 
+                                     alt="Inspiration" class="inspiration-image">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="appointment-details">
+                                    <p><strong>Category:</strong> {{ appointment.category_name }}</p>
+                                    <p><strong>Description:</strong> {{ appointment.description }}</p>
+                                    <p><strong>Appointment Date:</strong> {{ appointment.appointment_date }}</p>
+                                    <p><strong>Appointment Time:</strong> {{ appointment.appointment_time }}</p>
+                                    <p><strong>Budget Range:</strong> ₱{{ "%.2f"|format(appointment.budget_range) }}</p>
+                                    {% if appointment.special_requirements %}
+                                    <p><strong>Special Requirements:</strong> {{ appointment.special_requirements }}</p>
+                                    {% endif %}
+                                    {% if appointment.status_note %}
+                                    <p><strong>Status Note:</strong> {{ appointment.status_note }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-check fa-3x mb-3 text-muted"></i>
+                    <p class="text-muted">No active appointments</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/appointments.js') }}"></script>
+{% endblock %} 

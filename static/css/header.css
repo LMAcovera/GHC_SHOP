@@ -1,0 +1,77 @@
+.navbar {
+    padding: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.navbar-nav {
+    margin-right: auto !important;
+    margin-left: 0 !important;
+}
+
+.nav-link {
+    font-size: 1.1rem;
+    margin: 0 10px;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ffd700 !important;
+}
+
+/* Login section styles */
+.login-section {
+    margin-left: auto;
+    padding-left: 2rem;
+}
+
+.login-section .nav-link {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.login-section .nav-link i {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Dropdown styles */
+.dropdown-menu {
+    background-color: #fff;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-top: 0.5rem;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item i {
+    width: 20px;
+    color: #666;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #000;
+}
+
+.dropdown-divider {
+    margin: 0.5rem 0;
+    border-top: 1px solid #eee;
+}
+
+/* Active dropdown toggle */
+.dropdown-toggle.show {
+    color: #ffd700 !important;
+} 

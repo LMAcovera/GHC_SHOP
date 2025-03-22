@@ -1,0 +1,1265 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Glamorosa Haute Couture{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 admin-sidebar">
+                <div class="sidebar-header">
+                    <i class="fas fa-crown"></i>
+                    <span>Admin Panel</span>
+                </div>
+                <ul class="nav flex-column" id="adminTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>                    
+                    <li class="nav-item">
+                        <a class="nav-link active" id="products-tab" data-bs-toggle="tab" href="#products">
+                            <i class="fas fa-tshirt"></i> Products
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders">
+                            <i class="fas fa-shopping-bag"></i> Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="approvals-tab" data-bs-toggle="tab" href="#approvals">
+                            <i class="fas fa-check-circle"></i> Approvals
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="rentals-tab" data-bs-toggle="tab" href="#rentals">
+                            <i class="fas fa-key"></i> Rentals
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="appointments-tab" data-bs-toggle="tab" href="#appointments">
+                            <i class="fas fa-calendar-check"></i> Appointments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="revenue-tab" data-bs-toggle="tab" href="#revenue">
+                            <i class="fas fa-chart-line"></i> Revenue
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="reservations-tab" data-bs-toggle="tab" href="#reservations">
+                            <i class="fas fa-calendar-alt"></i> Reservations
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 admin-main">
+                <div class="tab-content p-4">
+                    <!-- Products Tab -->
+                    <div class="tab-pane fade show active" id="products">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Product Management</h2>
+                            <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                                <i class="fas fa-plus me-2"></i>Add New Product
+                            </button>
+                        </div>
+                        
+                        <!-- Products Table -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Image</th>
+                                                <th>Name</th>
+                                                <th>Category</th>
+                                                <th>Regular Price</th>
+                                                <th>Rental Fee/Day</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for product in products %}
+                                            <tr>
+                                                <td>
+                                                    <img src="{{ url_for('static', filename=product.primary_image) }}" 
+                                                         alt="{{ product.name }}" class="product-thumbnail">
+                                                </td>
+                                                <td>{{ product.name }}</td>
+                                                <td>{{ product.category_name }}</td>
+                                                <td>₱{{ "%.2f"|format(product.regular_price) }}</td>
+                                                <td>₱{{ "%.2f"|format(product.rental_fee_per_day) }}</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary edit-product" 
+                                                            data-product-id="{{ product.product_id }}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger delete-product" 
+                                                            data-product-id="{{ product.product_id }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orders Tab -->
+                    <div class="tab-pane fade" id="orders">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Orders Management</h2>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-dark" onclick="filterOrders('all')">All</button>
+                                <button class="btn btn-outline-warning" onclick="filterOrders('pending')">Pending</button>
+                                <button class="btn btn-outline-info" onclick="filterOrders('processing')">Processing</button>
+                                <button class="btn btn-outline-success" onclick="filterOrders('completed')">Completed</button>
+                                <button class="btn btn-outline-danger" onclick="filterOrders('cancelled')">Cancelled</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Order ID</th>
+                                                <th>Customer</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for order in orders %}
+                                            <tr class="order-row" data-status="{{ order.order_status }}">
+                                                <td>
+                                                    <img src="{{ url_for('static', filename=order.product_image) }}" 
+                                                         alt="{{ order.product_name }}" 
+                                                         class="product-thumbnail me-2">
+                                                    {{ order.product_name }}
+                                                </td>
+                                                <td>#{{ order.order_id }}</td>
+                                                <td>{{ order.customer_name }}</td>
+                                                <td>₱{{ "%.2f"|format(order.total_amount) }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ {
+                                                        'pending': 'warning',
+                                                        'processing': 'info',
+                                                        'completed': 'success',
+                                                        'cancelled': 'danger'
+                                                        }[order.order_status] }}">
+                                                        {{ order.order_status|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info view-order" 
+                                                            data-order-id="{{ order.order_id }}"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#orderDetailsModal">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-primary update-order" 
+                                                            data-order-id="{{ order.order_id }}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger delete-order" 
+                                                            data-order-id="{{ order.order_id }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Approvals Tab -->
+                    <div class="tab-pane fade" id="approvals">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Approval Requests</h2>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-dark" onclick="filterRequests('all')">All</button>
+                                <button class="btn btn-outline-primary" onclick="filterRequests('rental')">Rentals</button>
+                                <button class="btn btn-outline-success" onclick="filterRequests('reservation')">Reservations</button>
+                                <button class="btn btn-outline-info" onclick="filterRequests('appointment')">Appointments</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Type</th>
+                                                <th>Request ID</th>
+                                                <th>Customer</th>
+                                                <th>Details</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for request in rental_requests %}
+                                            <tr class="request-row" data-type="rental" data-status="{{ request.status }}">
+                                                <td>
+                                                    <img src="{{ url_for('static', filename=request.product_image) }}" 
+                                                         alt="{{ request.product_name }}" 
+                                                         class="product-thumbnail me-2">
+                                                    {{ request.product_name }}
+                                                </td>
+                                                <td>#{{ request.request_id }}</td>
+                                                <td>{{ request.full_name }}</td>
+                                                <td><span class="badge bg-primary">Rental</span></td>
+                                                <td>
+                                                    <span class="badge bg-{{ {
+                                                        'pending': 'warning',
+                                                        'approved': 'success',
+                                                        'rejected': 'danger'
+                                                        }[request.status] }}">
+                                                        {{ request.status|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info view-request" 
+                                                            data-request-id="{{ request.request_id }}"
+                                                            data-request-type="rental"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#requestDetailsModal">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-primary update-request" 
+                                                            data-request-id="{{ request.request_id }}"
+                                                            data-request-type="rental"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#updateRequestModal">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger delete-request" 
+                                                            data-request-id="{{ request.request_id }}"
+                                                            data-request-type="rental">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                            
+                                            {% for request in reservation_requests %}
+                                            <tr class="request-row" data-type="reservation" data-status="{{ request.status }}">
+                                                <td>
+                                                    <img src="{{ url_for('static', filename=request.product_image) }}" 
+                                                         alt="{{ request.product_name }}" 
+                                                         class="product-thumbnail me-2">
+                                                    {{ request.product_name }}
+                                                </td>
+                                                <td>#{{ request.request_id }}</td>
+                                                <td>{{ request.full_name }}</td>
+                                                <td>
+                                                    <span class="badge bg-success">Reservation</span>
+                                                    <small class="d-block mt-1">₱{{ "%.2f"|format(request.total_amount) }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-{{ {
+                                                        'pending': 'warning',
+                                                        'approved': 'success',
+                                                        'rejected': 'danger',
+                                                        'completed': 'secondary'
+                                                        }[request.status] }}">
+                                                        {{ request.status|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info view-reservation-request" 
+                                                            data-request-id="{{ request.request_id }}"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#reservationRequestDetailsModal">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-primary update-request" 
+                                                            data-request-id="{{ request.request_id }}"
+                                                            data-request-type="reservation"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#updateRequestModal">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger delete-request" 
+                                                            data-request-id="{{ request.request_id }}"
+                                                            data-request-type="reservation">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                            
+                                            {% for appointment in appointment_requests %}
+                                            <tr class="request-row" data-type="appointment" data-status="{{ appointment.status }}">
+                                                <td><span class="badge bg-info">Appointment</span></td>
+                                                <td>#{{ appointment.request_id }}</td>
+                                                <td>{{ appointment.full_name }}<br>
+                                                    <small class="text-muted">{{ appointment.contact_number }}</small>
+                                                </td>
+                                                <td>
+                                                    <strong>Category:</strong> {{ appointment.category_name }}<br>
+                                                    {{ appointment.formatted_date }}<br>
+                                                    <small class="text-muted">{{ appointment.formatted_time }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-{{ {
+                                                        'pending': 'warning',
+                                                        'approved': 'success',
+                                                        'rejected': 'danger'
+                                                        }[appointment.status] }}">
+                                                        {{ appointment.status|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info view-request" 
+                                                            data-request-id="{{ appointment.appointment_id }}"
+                                                            data-request-type="appointment"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#requestDetailsModal">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-primary update-request" 
+                                                            data-request-id="{{ appointment.appointment_id }}"
+                                                            data-request-type="appointment"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#updateRequestModal">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger delete-request" 
+                                                            data-request-id="{{ appointment.request_id }}"
+                                                            data-request-type="appointment">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rentals Tab -->
+                    <div class="tab-pane fade" id="rentals">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Rentals Management</h2>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-dark" onclick="filterRentals('all')">All</button>
+                                <button class="btn btn-outline-info" onclick="filterRentals('processing')">Processing</button>
+                                <button class="btn btn-outline-primary" onclick="filterRentals('shipped')">Shipped</button>
+                                <button class="btn btn-outline-success" onclick="filterRentals('delivered')">Delivered</button>
+                                <button class="btn btn-outline-warning" onclick="filterRentals('returned')">Returned</button>
+                                <button class="btn btn-outline-secondary" onclick="filterRentals('completed')">Completed</button>
+                                <button class="btn btn-outline-danger" onclick="filterRentals('cancelled')">Cancelled</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table align-middle rentals-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Customer</th>
+                                                <th>Rental Period</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for rental in rentals %}
+                                            <tr class="rental-row" data-status="{{ rental.status }}">
+                                                <td>
+                                                    <div class="product-cell">
+                                                        <img src="{{ url_for('static', filename=rental.product_image) }}" 
+                                                             alt="{{ rental.product_name }}" 
+                                                             class="product-thumbnail">
+                                                        <span>{{ rental.product_name }}</span>
+                                                    </div>
+                                                </td>
+                                                <td>{{ rental.customer_name }}</td>
+                                                <td>
+                                                    <div class="rental-period">
+                                                        <div class="rental-period-date">
+                                                            <span class="date-label">From:</span>
+                                                            <span class="date-value">{{ rental.start_date.strftime('%b %d, %Y') }}</span>
+                                                        </div>
+                                                        <div class="rental-period-date">
+                                                            <span class="date-label">To:</span>
+                                                            <span class="date-value">{{ rental.end_date.strftime('%b %d, %Y') }}</span>
+                                                        </div>
+                                                        <div class="rental-duration">({{ rental.rental_days }} days)</div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-{{ {
+                                                        'processing': 'info',
+                                                        'shipped': 'primary',
+                                                        'delivered': 'success',
+                                                        'returned': 'warning',
+                                                        'completed': 'secondary',
+                                                        'cancelled': 'danger'
+                                                        }[rental.status] }}">
+                                                        {{ rental.status|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info view-rental" 
+                                                            data-rental-id="{{ rental.rental_id }}"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#rentalDetailsModal">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-primary update-rental" 
+                                                            data-rental-id="{{ rental.rental_id }}"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#updateRentalModal">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger delete-rental" 
+                                                            data-rental-id="{{ rental.rental_id }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appointments Tab -->
+                    <div class="tab-pane fade" id="appointments">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Appointments Management</h2>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-dark" onclick="filterAppointments('all')">All</button>
+                                <button class="btn btn-outline-info" onclick="filterAppointments('processing')">Processing</button>
+                                <button class="btn btn-outline-success" onclick="filterAppointments('completed')">Completed</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table align-middle appointments-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Customer</th>
+                                                <th>Contact</th>
+                                                <th>Category</th>
+                                                <th>Schedule</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for appointment in appointments %}
+                                            <tr class="appointment-row" data-status="{{ appointment.status }}">
+                                                <td>{{ appointment.full_name }}</td>
+                                                <td>{{ appointment.contact_number }}</td>
+                                                <td>{{ appointment.category_name }}</td>
+                                                <td>
+                                                    <div class="appointment-schedule">
+                                                        {{ appointment.formatted_date }}<br>
+                                                        <small class="text-muted">{{ appointment.formatted_time }}</small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-{{ {
+                                                        'processing': 'info',
+                                                        'completed': 'success'
+                                                        }[appointment.status] }}">
+                                                        {{ appointment.status|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info view-appointment" 
+                                                            data-appointment-id="{{ appointment.appointment_id }}"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#appointmentDetailsModal">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-primary update-appointment" 
+                                                            data-appointment-id="{{ appointment.appointment_id }}"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#updateAppointmentModal">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger delete-appointment" 
+                                                            data-appointment-id="{{ appointment.appointment_id }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Tab Content -->
+                    <div class="tab-pane fade" id="revenue">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Revenue Analytics</h2>
+                            <div class="d-flex gap-2">
+                                <select class="form-select" id="yearSelect" style="width: auto;">
+                                    <!-- Will be populated with years -->
+                                </select>
+                                <div class="btn-group">
+                                    <button class="btn btn-outline-dark active" data-period="weekly">Weekly</button>
+                                    <button class="btn btn-outline-dark" data-period="monthly">Monthly</button>
+                                    <button class="btn btn-outline-dark" data-period="yearly">Yearly</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4 g-3">
+                            <!-- Summary Cards -->
+                            <div class="col-md-3">
+                                <div class="card revenue-summary-card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Total Revenue</h6>
+                                        <h3 class="card-text" id="totalRevenue">₱0.00</h3>
+                                        <small class="text-muted">All time</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card revenue-summary-card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Orders Revenue</h6>
+                                        <h3 class="card-text" id="ordersRevenue">₱0.00</h3>
+                                        <small class="text-muted">From completed orders</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card revenue-summary-card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Rentals Revenue</h6>
+                                        <h3 class="card-text" id="rentalsRevenue">₱0.00</h3>
+                                        <small class="text-muted">From completed rentals</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card revenue-summary-card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Late Fees</h6>
+                                        <h3 class="card-text" id="lateFees">₱0.00</h3>
+                                        <small class="text-muted">From late returns</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- New Count Summary Cards -->
+                        <div class="row mb-4 g-3">
+                            <div class="col-md-3">
+                                <div class="card count-summary-card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Total Orders</h6>
+                                        <h3 class="card-text" id="totalOrders">0</h3>
+                                        <small class="text-muted">Completed orders</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card count-summary-card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Total Rentals</h6>
+                                        <h3 class="card-text" id="totalRentals">0</h3>
+                                        <small class="text-muted">Completed rentals</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card count-summary-card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Active Rentals</h6>
+                                        <h3 class="card-text" id="activeRentals">0</h3>
+                                        <small class="text-muted">Currently ongoing</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card count-summary-card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Late Returns</h6>
+                                        <h3 class="card-text" id="lateReturns">0</h3>
+                                        <small class="text-muted">Past due date</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart Container -->
+                        <div class="chart-card">
+                            <div class="revenue-chart-container">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Tab Content -->
+                    <div class="tab-pane fade" id="dashboard">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Dashboard Overview</h2>
+                            <div class="current-date">
+                                <i class="fas fa-calendar-day"></i> 
+                                <span id="currentDate"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <!-- Today's Appointments Card -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-calendar-check"></i> Today's Appointments
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if todays_appointments %}
+                                            {% for appointment in todays_appointments %}
+                                            <div class="appointment-item mb-3">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="mb-1">{{ appointment.full_name }}</h6>
+                                                        <p class="mb-1"><small>{{ appointment.category_name }}</small></p>
+                                                        <p class="mb-0 text-muted">
+                                                            <i class="fas fa-clock"></i> {{ appointment.formatted_time }}
+                                                        </p>
+                                                    </div>
+                                                    <span class="badge bg-{{ {
+                                                        'processing': 'info',
+                                                        'completed': 'success'
+                                                        }[appointment.status] }}">
+                                                        {{ appointment.status|title }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p class="text-muted mb-0">No appointments scheduled for today</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Today's Reservations Card -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-success text-white">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-calendar-alt"></i> Today's Reservations
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if todays_reservations %}
+                                            {% for reservation in todays_reservations %}
+                                            <div class="reservation-item mb-3">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="mb-1">{{ reservation.full_name }}</h6>
+                                                        <p class="mb-1">{{ reservation.product_name }}</p>
+                                                        <p class="mb-0 text-muted">₱{{ "%.2f"|format(reservation.total_amount) }}</p>
+                                                    </div>
+                                                    <span class="badge bg-{{ {
+                                                        'processing': 'info',
+                                                        'completed': 'success'
+                                                        }[reservation.status] }}">
+                                                        {{ reservation.status|title }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p class="text-muted mb-0">No reservations for today</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Active Rentals Card -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-success text-white">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-box-open"></i> Active Rentals
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if active_rentals %}
+                                            {% for rental in active_rentals %}
+                                            <div class="rental-item mb-3">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="mb-1">{{ rental.customer_name }}</h6>
+                                                        <p class="mb-1"><small>{{ rental.name }}</small></p>
+                                                        <p class="mb-0 text-muted">
+                                                            Return by: {{ rental.end_date.strftime('%b %d, %Y') }}
+                                                        </p>
+                                                    </div>
+                                                    <span class="badge bg-{{ {
+                                                        'processing': 'info',
+                                                        'shipped': 'primary',
+                                                        'delivered': 'success'
+                                                        }[rental.status] }}">
+                                                        {{ rental.status|title }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p class="text-muted mb-0">No active rentals</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Upcoming Appointments Card -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-info text-white">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-calendar-alt"></i> Upcoming Appointments (Next 7 Days)
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if upcoming_appointments %}
+                                            {% for appointment in upcoming_appointments %}
+                                            <div class="appointment-item mb-3">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="mb-1">{{ appointment.full_name }}</h6>
+                                                        <p class="mb-1"><small>{{ appointment.category_name }}</small></p>
+                                                        <p class="mb-0 text-muted">
+                                                            <i class="fas fa-calendar"></i> {{ appointment.formatted_date }}
+                                                            <i class="fas fa-clock ms-2"></i> {{ appointment.formatted_time }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p class="text-muted mb-0">No upcoming appointments in the next 7 days</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reservations Tab Content -->
+                    <div class="tab-pane fade" id="reservations">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Reservations Management</h2>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-dark" onclick="filterReservations('all')">All</button>
+                                <button class="btn btn-outline-info" onclick="filterReservations('processing')">Processing</button>
+                                <button class="btn btn-outline-primary" onclick="filterReservations('confirmed')">Confirmed</button>
+                                <button class="btn btn-outline-success" onclick="filterReservations('completed')">Completed</button>
+                                <button class="btn btn-outline-danger" onclick="filterReservations('cancelled')">Cancelled</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table align-middle reservations-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Customer</th>
+                                                <th>Size</th>
+                                                <th>Total Amount</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for reservation in reservations %}
+                                            <tr class="reservation-row" data-status="{{ reservation.status }}">
+                                                <td>
+                                                    <div class="product-cell">
+                                                        <img src="{{ url_for('static', filename=reservation.product_image) }}" 
+                                                             alt="{{ reservation.product_name }}" 
+                                                             class="product-thumbnail">
+                                                        <span>{{ reservation.product_name }}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    {{ reservation.full_name }}<br>
+                                                    <small class="text-muted">{{ reservation.contact_number }}</small>
+                                                </td>
+                                                <td>{{ reservation.size }}</td>
+                                                <td>₱{{ "%.2f"|format(reservation.total_amount) }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ {
+                                                        'processing': 'info',
+                                                        'confirmed': 'primary',
+                                                        'completed': 'success',
+                                                        'cancelled': 'danger'
+                                                        }[reservation.status] }}">
+                                                        {{ reservation.status|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info view-reservation" 
+                                                            data-reservation-id="{{ reservation.reservation_id }}"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#reservationDetailsModal">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-primary update-reservation" 
+                                                            data-reservation-id="{{ reservation.reservation_id }}"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#updateReservationModal">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger delete-reservation" 
+                                                            data-reservation-id="{{ reservation.reservation_id }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addProductForm" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Product Name</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Category</label>
+                            <select class="form-control" name="category_id" required>
+                                {% for category in categories %}
+                                <option value="{{ category.category_id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Regular Price</label>
+                            <input type="number" class="form-control" name="regular_price" step="0.01" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Rental Fee Per Day</label>
+                            <input type="number" class="form-control" name="rental_fee_per_day" step="0.01" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label>Sizes</label>
+                            <div id="sizesContainer">
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" name="sizes[]" required>
+                                    <button type="button" class="btn btn-dark add-size">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Color</label>
+                            <input type="text" class="form-control" name="color" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Material</label>
+                            <input type="text" class="form-control" name="material" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Description</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Product Images</label>
+                        <input type="file" class="form-control" name="images" multiple accept="image/*" required>
+                        <small class="text-muted">You can select multiple images. The first image will be the primary image.</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-dark" id="submitProduct">Add Product</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Order Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="orderDetails">
+                    <!-- Details will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Order Modal -->
+<div class="modal fade status-update" id="updateOrderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Order Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateOrderForm">
+                    <input type="hidden" id="updateOrderId">
+                    <div class="mb-3">
+                        <label for="orderStatus" class="form-label">Status</label>
+                        <select class="form-select" id="orderStatus" required>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmUpdateOrder">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Request Details Modal -->
+<div class="modal fade" id="requestDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Request Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="requestDetails">
+                    <!-- Details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Request Modal -->
+<div class="modal fade status-update" id="updateRequestModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Request Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateRequestForm">
+                    <input type="hidden" id="updateRequestId">
+                    <input type="hidden" id="updateRequestType">
+                    <div class="mb-3">
+                        <label for="requestStatus" class="form-label">Status</label>
+                        <select class="form-select" id="requestStatus" required>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="statusNote" class="form-label">Note (Optional)</label>
+                        <textarea class="form-control" id="statusNote" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmUpdateRequest">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rental Details Modal -->
+<div class="modal fade" id="rentalDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rental Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="rentalDetails">
+                    <!-- Details will be populated by JavaScript -->
+                </div>
+
+                
+                <!-- Add Return Confirmation Section -->
+                <div class="mt-4" id="returnSection">
+                    <h6>Return Status</h6>
+                    <div id="returnInfo"></div>
+                    <button id="confirmReturnBtn" class="btn btn-success mt-2" style="display: none;">
+                        Confirm Return
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Rental Status Modal -->
+<div class="modal fade status-update" id="updateRentalModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Rental Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateRentalForm">
+                    <input type="hidden" id="updateRentalId">
+                    <div class="mb-3">
+                        <label for="rentalStatus" class="form-label">Status</label>
+                        <select class="form-select" id="rentalStatus" required>
+                            <option value="processing">Processing</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="returned">Returned</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmUpdateRental">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div class="modal fade edit-product-modal" id="editProductModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProductForm">
+                    <input type="hidden" id="editProductId" name="product_id">
+                    <div class="mb-3">
+                        <label class="form-label">Regular Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₱</span>
+                            <input type="number" class="form-control" id="editRegularPrice" name="regular_price" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rental Fee Per Day</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₱</span>
+                            <input type="number" class="form-control" id="editRentalFee" name="rental_fee_per_day" step="0.01" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveProductChanges">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Details Modal -->
+<div class="modal fade" id="appointmentDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Appointment Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="appointmentDetails">
+                    <!-- Details will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Appointment Status Modal -->
+<div class="modal fade status-update" id="updateAppointmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Appointment Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateAppointmentForm">
+                    <input type="hidden" id="updateAppointmentId">
+                    <div class="mb-3">
+                        <label for="appointmentStatus" class="form-label">Status</label>
+                        <select class="form-select" id="appointmentStatus" required>
+                            <option value="processing">Processing</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmUpdateAppointment">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reservation Details Modal -->
+<div class="modal fade" id="reservationDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reservation Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="reservationDetails">
+                    <!-- Details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Reservation Status Modal -->
+<div class="modal fade" id="updateReservationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Reservation Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="updateReservationId">
+                <div class="mb-3">
+                    <label for="reservationStatus" class="form-label">Status</label>
+                    <select class="form-select" id="reservationStatus">
+                        <option value="processing">Processing</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirmUpdateReservation">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this after your existing modals -->
+<div class="modal fade" id="reservationInfoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reservation Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="reservationDetails">
+                <!-- Details will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reservation Request Details Modal -->
+<div class="modal fade" id="reservationRequestDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reservation Request Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="reservationRequestDetails">
+                    <!-- Details will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %} 
